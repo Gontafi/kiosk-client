@@ -29,16 +29,18 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 			cmd := exec.Command("pkill", "-f", "chromium")
 			_ = cmd.Run()
 
-			cmd = exec.Command("export", "DISPLAY=:0")
-			_ = cmd.Run()
+			os.Setenv("DISPLAY", ":0")
 
-			cmd = exec.Command("chromium", "--kiosk", "--noerrdialogs", 
-			"--disable-infobars", "--no-first-run", 
-			"--enable-features=OverlayScrollbar", 
-			"--start-maximized", currentURL)
-			_, err = cmd.CombinedOutput()
+			cmd = exec.Command("chromium", 
+			"--kiosk", "--noerrdialogs",
+			 "--disable-infobars", 
+			 "--no-first-run", 
+			 "--enable-features=OverlayScrollbar", 
+			 "--start-maximized", currentURL)
 
-			//logger.Info(fmt.Sprintf("Chromium output: %s", string(output)))
+			output, err := cmd.CombinedOutput()
+
+			logger.Info(fmt.Sprintf("Chromium output: %s", string(output)))
 			if err != nil {
 				logger.Error("Failed to start Chromium:", err)
 				continue
