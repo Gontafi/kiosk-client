@@ -29,10 +29,13 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 			cmd := exec.Command("pkill", "-f", "chromium")
 			_ = cmd.Run()
 
-			cmd = exec.Command("export DISPLAY=:0")
+			cmd = exec.Command("export", "DISPLAY=:0")
 			_ = cmd.Run()
 
-			cmd = exec.Command("chromium", "--kiosk", currentURL)
+			cmd = exec.Command("chromium", "--kiosk", "--noerrdialogs", 
+			"--disable-infobars", "--no-first-run", 
+			"--enable-features=OverlayScrollbar", 
+			"--start-maximized", currentURL)
 			_, err = cmd.CombinedOutput()
 
 			//logger.Info(fmt.Sprintf("Chromium output: %s", string(output)))
@@ -50,8 +53,8 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 
 func fetchURL(cfg *config.Config, uuid *string) string {
 	url := fmt.Sprintf("%s%s/%s", cfg.ServerURL, cfg.GetLinkPath, *uuid)
-	resp, _, err := utils.MakeGETRequest(url)
-
+	resp, _, err := utils.MakeGETRequest(strings.TrimSuffix(url, "\n"))
+	
 	if err != nil {
 		logger.Error("Retrieving URL failed:", err)
 		return loadURLFromFile()
@@ -74,10 +77,15 @@ func saveURLToFile(url string) {
 }
 
 func loadURLFromFile() string {
-	data, err := os.ReadFile(urlFilePath)
-	if err != nil {
-		logger.Warn("No previous URL found, defaulting to initial URL")
-		return "https://google.com"
-	}
-	return strings.TrimSpace(string(data))
+    data, err := os.ReadFile(urlFilePath)
+    if err != nil {
+        logger.Warn("No previous URL found, defaulting to initial URL")
+        return "https://google.com"
+    }
+
+    cleanedData := strings.ReplaceAll(string(data), "\n", "")
+    cleanedData = strings.ReplaceAll(cleanedData, "\r", "")
+
+    return strings.TrimSpace(cleanedData)
 }
+
