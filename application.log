@@ -1,0 +1,90 @@
+No .env file found, using default values
+[2024-11-14 15:19:45 +0000] [INFO] Trying to register uuid 5226398b-393d-466d-92fc-218e1fee5911
+[2024-11-14 15:19:45 +0000] [INFO] Application started
+[2024-11-14 15:19:45 +0000] [INFO] https://example.com
+[2024-11-14 15:19:45 +0000] [INFO] https://example.com
+[2024-11-14 15:19:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:19:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:20:06 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:20:06 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:20:15 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:20:16 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:20:16 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:20:25 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:20:26 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:20:35 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:20:36 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:20:45 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:20:46 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:20:46 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:20:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:20:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:21:05 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:21:06 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:21:15 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:21:16 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:21:25 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:21:26 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:21:35 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:21:36 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:21:45 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:21:46 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:21:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:21:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:22:05 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:22:06 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:22:06 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:22:15 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:22:16 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:22:25 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:22:26 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:22:35 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:22:36 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:22:45 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:22:46 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:22:46 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:22:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:22:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:23:05 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:23:06 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:23:15 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:23:16 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:23:25 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:23:26 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:23:35 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:23:36 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:23:45 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:23:46 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:23:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:23:56 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:23:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:24:05 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:24:06 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:24:15 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:24:16 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:24:25 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:24:26 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:24:35 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:24:36 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:24:45 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:24:46 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:24:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:24:56 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:24:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:25:05 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:25:06 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:25:15 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:25:16 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:25:25 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:25:26 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:25:26 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:25:35 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:25:36 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:25:45 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:25:46 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:25:55 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:25:56 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:25:56 +0000] [WARN] Chromium browser is not running
+[2024-11-14 15:26:05 +0000] [ERROR] Failed to read CPU temperature:exit status 1
+[2024-11-14 15:26:06 +0000] [ERROR] Failed to parse CPU idle percentage:strconv.ParseFloat: parsing "id,": invalid syntax
+[2024-11-14 15:26:06 +0000] [WARN] Chromium browser is not running

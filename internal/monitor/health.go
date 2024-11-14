@@ -7,7 +7,7 @@ import (
 	"kiosk-client/config"
 	"kiosk-client/pkg/logger"
 	"kiosk-client/pkg/models"
-	"kiosk-client/pkg/utils"
+	_ "kiosk-client/pkg/utils"
 	"os"
 	"os/exec"
 	"strconv"
@@ -42,19 +42,20 @@ func collectHealthData(uuid *string) *models.HealthRequest {
 }
 
 func sendHealthReport(cfg *config.Config, report *models.HealthRequest) {
-	reportJSON, err := json.Marshal(report)
+	reportJSON, err := json.MarshalIndent(report, "","    ")
 	if err != nil {
 		logger.Error("Failed to marshal health report:", err)
 		return
 	}
 
 	url := fmt.Sprintf("%s%s", cfg.ServerURL, cfg.HealthReportPath)
-
-	_, _, err = utils.MakePOSTRequest(url, reportJSON)
-	if err != nil {
-		logger.Error("Failed to send health report:", err)
-		return
-	}
+	
+	fmt.Println(string(reportJSON), url)
+	//_, _, err = utils.MakePOSTRequest(url, reportJSON)
+	//if err != nil {
+	//	logger.Error("Failed to send health report:", err)
+	//	return
+	//}
 }
 
 // getBrowserStatus checks if Chromium is running

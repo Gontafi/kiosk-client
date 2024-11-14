@@ -20,22 +20,28 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 
 	for {
 		newURL := fetchURL(cfg, uuid)
-		if newURL != currentURL {
+		
+		logger.Info(currentURL)
+		logger.Info(newURL)
+		
+		out, err := exec.Command("pgrep", "-f", "chromium-browser").Output()
+		if (err != nil || len(out) == 0) || newURL != currentURL {
 			currentURL = newURL
 			saveURLToFile(currentURL)
 
 			// Kill any running instance of Chromium
-			cmd := exec.Command("pkill", "-f", "chromium-browser")
+			cmd := exec.Command("pkill", "-f", "chromium")
 			_ = cmd.Run() // Ignore error if Chromium wasn't running
-
+			cmd = exec.Command("export DISPLAY=:0")
+			_ = cmd.Run() // Change to main display
 			// Start Chromium in kiosk mode with the new URL
-			cmd = exec.Command("chromium-browser", "--kiosk", currentURL)
-			err := cmd.Start()
+			cmd = exec.Command("chromium", "--kiosk", currentURL)
+			output, err := cmd.CombinedOutput()
+			logger.Info(fmt.Sprintf("Chromium output: %s", string(output)))
 			if err != nil {
 				logger.Error("Failed to start Chromium:", err)
 				continue
 			}
-
 			logger.Info(fmt.Sprintf("Launched Chromium with URL: %s", currentURL))
 		}
 
@@ -44,6 +50,7 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 }
 
 func fetchURL(cfg *config.Config, uuid *string) string {
+	return "https://example.com"
 	url := fmt.Sprintf("%s%s/%s", cfg.ServerURL, cfg.GetLinkPath, *uuid)
 	resp, _, err := utils.MakeGETRequest(url)
 
@@ -72,7 +79,7 @@ func loadURLFromFile() string {
 	data, err := os.ReadFile(urlFilePath)
 	if err != nil {
 		logger.Warn("No previous URL found, defaulting to initial URL")
-		return "https://example.com"
+		return "https://google.com"
 	}
 	return strings.TrimSpace(string(data))
 }

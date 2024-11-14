@@ -42,6 +42,6 @@ func Load() *Config {
 		GetLinkPath:      getEnv("GET_LINK_PATH", "/api/get_link"),
 		HealthReportPath: getEnv("HEALTH_REPORT_PATH", "/api/status_update"),
 		PollInterval:     parseHours(getEnv("POLL_INTERVAL", "24"), 24*time.Hour),
-		HealthInterval:   parseHours(getEnv("HEALTH_INTERVAL", "1"), 1*time.Hour),
+		HealthInterval:   10*time.Second,
 	}
 }

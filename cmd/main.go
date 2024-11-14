@@ -18,7 +18,7 @@ func startProgram() {
 	cfg := config.Load()
 
 	uuid := registration.RegisterDevice(cfg)
-
+	
 	go monitor.StartHealthReportSender(cfg, &uuid)
 	go kiosk.StartKioskController(cfg, &uuid)
 	go updater.CheckForUpdates(cfg, &uuid)
