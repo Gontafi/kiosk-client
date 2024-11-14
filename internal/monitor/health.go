@@ -1,17 +1,21 @@
 package monitor
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"kiosk-client/config"
 	"kiosk-client/pkg/logger"
 	"kiosk-client/pkg/models"
 	"kiosk-client/pkg/utils"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
 	"time"
 )
+
+const logFilePath = "application.log" // Path to the log file
 
 func StartHealthReportSender(cfg *config.Config, uuid *string) {
 	for range time.Tick(cfg.HealthInterval) {
@@ -25,6 +29,7 @@ func collectHealthData(uuid *string) *models.HealthRequest {
 	cpuLoad := getCPULoad()
 	memoryUsage := getMemoryUsage()
 	browserStatus := getBrowserStatus()
+	logs := getLastLogLines(logFilePath, 50) // Read the last 50 lines from the log file
 
 	return &models.HealthRequest{
 		DeviceID:      *uuid,
@@ -32,7 +37,7 @@ func collectHealthData(uuid *string) *models.HealthRequest {
 		CPULoad:       cpuLoad,
 		MemoryUsage:   memoryUsage,
 		BrowserStatus: browserStatus,
-		Logs:          "Recent logs", // Replace with actual log data if needed
+		Logs:          logs,
 	}
 }
 
@@ -127,4 +132,30 @@ func getMemoryUsage() string {
 
 	usage := (float64(usedMem) / float64(totalMem)) * 100.0
 	return fmt.Sprintf("%.1f%%", usage)
+}
+
+func getLastLogLines(filePath string, n int) string {
+	file, err := os.Open(filePath)
+	if err != nil {
+		logger.Error("Failed to open log file:", err)
+		return "Failed to read logs"
+	}
+	defer file.Close()
+
+	var lines []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		lines = append(lines, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		logger.Error("Failed to read log file:", err)
+		return "Failed to read logs"
+	}
+
+	if len(lines) > n {
+		lines = lines[len(lines)-n:]
+	}
+
+	return strings.Join(lines, "\n")
 }
