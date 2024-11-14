@@ -36,12 +36,19 @@ func Load() *Config {
 		return defaultValue
 	}
 
+	parseMinutes := func(envValue string, defaultValue time.Duration) time.Duration {
+		if minutes, err := strconv.Atoi(envValue); err == nil {
+			return time.Duration(minutes) * time.Minute
+		}
+		return defaultValue
+	}
+
 	return &Config{
 		ServerURL:        getEnv("SERVER_URL", "https://example.com/api"),
 		RegistrationPath: getEnv("REGISTRATION_PATH", "/api/register"),
 		GetLinkPath:      getEnv("GET_LINK_PATH", "/api/get_link"),
 		HealthReportPath: getEnv("HEALTH_REPORT_PATH", "/api/status_update"),
-		PollInterval:     parseHours(getEnv("POLL_INTERVAL", "24"), 24*time.Hour),
-		HealthInterval:   10*time.Second,
+		PollInterval:     parseHours(getEnv("POLL_INTERVAL", ""), 24*time.Hour),
+		HealthInterval:   parseMinutes(getEnv("HEALTH_INTERVAL", ""), 10*time.Minute),
 	}
 }

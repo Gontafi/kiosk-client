@@ -35,7 +35,7 @@ func makeRequestWithRetry(method, url string, data interface{}) ([]byte, int, er
 			if err != nil {
 				return nil, 0, err
 			}
-			logger.Warn(string(jsonData))
+
 			req, err = http.NewRequest(method, url, bytes.NewBuffer(jsonData))
 			req.Header.Set("Content-Type", "application/json")
 		} else {
@@ -48,19 +48,17 @@ func makeRequestWithRetry(method, url string, data interface{}) ([]byte, int, er
 
 		client := &http.Client{Timeout: 10 * time.Second}
 		resp, err = client.Do(req)
-		logger.Warn(resp.StatusCode)
-		logger.Warn(url)
+
 		defer resp.Body.Close()
 		data, _ := ioutil.ReadAll(resp.Body)
-		logger.Warn(string(data))
+
 		if err == nil && resp.StatusCode == http.StatusOK {
-			
 			data, err = ioutil.ReadAll(resp.Body)
 			return data, resp.StatusCode, err
 		}
 
 		if attempt < MaxRetries {
-			logger.Warn("Request failed, retrying...", "Attempt:", attempt, "Error:", err)
+			logger.Warn("Request failed, retrying...", "Attempt: ", attempt, " Error: ", err, " Code: ", resp.StatusCode)
 			time.Sleep(time.Second * time.Duration(attempt*2)) // Exponential backoff
 		} else {
 			logger.Error("Request failed after max retries:", err)

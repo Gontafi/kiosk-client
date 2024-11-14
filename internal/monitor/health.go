@@ -15,7 +15,7 @@ import (
 	"time"
 )
 
-const logFilePath = "application.log" // Path to the log file
+const logFilePath = "application.log"
 
 func StartHealthReportSender(cfg *config.Config, uuid *string) {
 	for range time.Tick(cfg.HealthInterval) {
@@ -57,8 +57,8 @@ func sendHealthReport(cfg *config.Config, report *models.HealthRequest) {
 	fmt.Println(string(reportJSON), url)
 	_, _, err = utils.MakePUTRequest(url, reportJSON)
 	if err != nil {
-	    logger.Error("Failed to send health report:", err)
-	    return
+		logger.Error("Failed to send health report:", err)
+		return
 	}
 }
 
@@ -71,26 +71,26 @@ func getBrowserStatus() string {
 	return "working"
 }
 
-func getCPUTemperature() int {
+func getCPUTemperature() float64 {
 	out, err := exec.Command("cat", "/sys/class/thermal/thermal_zone0/temp").Output()
 	if err != nil {
 		logger.Error("Failed to read CPU temperature:", err)
-		return 0
+		return 0.0
 	}
 
 	tempMilli, err := strconv.Atoi(strings.TrimSpace(string(out)))
 	if err != nil {
 		logger.Error("Failed to parse CPU temperature:", err)
-		return 0
+		return 0.0
 	}
-	return tempMilli / 1000
+	return float64(tempMilli) / 1000.0
 }
 
-func getCPULoad() int {
+func getCPULoad() float64 {
 	out, err := exec.Command("top", "-bn1").Output()
 	if err != nil {
 		logger.Error("Failed to read CPU load:", err)
-		return 0
+		return 0.0
 	}
 
 	lines := strings.Split(string(out), "\n")
@@ -101,40 +101,40 @@ func getCPULoad() int {
 			idle, err := strconv.ParseFloat(idleStr, 64)
 			if err != nil {
 				logger.Error("Failed to parse CPU idle percentage:", err)
-				return 0
+				return 0.0
 			}
-			return int(100.0 - idle) // CPU usage as an integer
+			return 100.0 - idle // CPU usage = 100 - idle
 		}
 	}
-	return 0
+	return 0.0
 }
 
-func getMemoryUsage() int {
+func getMemoryUsage() float64 {
 	out, err := exec.Command("free", "-m").Output()
 	if err != nil {
 		logger.Error("Failed to read memory usage:", err)
-		return 0
+		return 0.0
 	}
 
 	lines := strings.Split(string(out), "\n")
 	if len(lines) < 2 {
 		logger.Error("Unexpected output from free command")
-		return 0
+		return 0.0
 	}
 
 	fields := strings.Fields(lines[1]) // Use the second line for memory usage
 	totalMem, err := strconv.Atoi(fields[1])
 	if err != nil {
 		logger.Error("Failed to parse total memory:", err)
-		return 0
+		return 0.0
 	}
 	usedMem, err := strconv.Atoi(fields[2])
 	if err != nil {
 		logger.Error("Failed to parse used memory:", err)
-		return 0
+		return 0.0
 	}
 
-	return int((float64(usedMem) / float64(totalMem)) * 100.0)
+	return (float64(usedMem) / float64(totalMem)) * 100.0
 }
 
 func getLastLogLines(filePath string, n int) string {

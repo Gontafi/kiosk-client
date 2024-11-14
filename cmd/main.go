@@ -7,7 +7,6 @@ import (
 	"kiosk-client/internal/kiosk"
 	"kiosk-client/internal/monitor"
 	"kiosk-client/internal/registration"
-	"kiosk-client/internal/updater"
 	"kiosk-client/pkg/logger"
 	"log"
 	"os"
@@ -16,12 +15,10 @@ import (
 func startProgram() {
 	defer logger.Close()
 	cfg := config.Load()
-	log.Println(cfg.ServerURL)
 	uuid := registration.RegisterDevice(cfg)
-	
+
 	go monitor.StartHealthReportSender(cfg, &uuid)
 	go kiosk.StartKioskController(cfg, &uuid)
-	go updater.CheckForUpdates(cfg, &uuid)
 
 	logger.Info("Application started")
 	select {}
