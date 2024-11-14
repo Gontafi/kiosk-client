@@ -3,13 +3,13 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
+	"log"
 	"kiosk-client/config"
 	"kiosk-client/internal/kiosk"
 	"kiosk-client/internal/monitor"
 	"kiosk-client/internal/registration"
 	"kiosk-client/pkg/logger"
-	"log"
-	"os"
 )
 
 func startProgram() {
@@ -27,8 +27,8 @@ func startProgram() {
 func statusCheck() {
 	fmt.Println("Checking status of program...")
 
-	pidFile := "/tmp/kiosk-client.pid"
-	if _, err := os.Stat(pidFile); err == nil {
+	lockFile := "./kiosk-client.lock"
+	if _, err := os.Stat(lockFile); err == nil {
 		fmt.Println("Program is running.")
 	} else {
 		fmt.Println("Program is not running.")
@@ -40,13 +40,14 @@ func main() {
 	statusCmd := flag.Bool("status", false, "Check the program status")
 	flag.Parse()
 
-	pidFile := "/tmp/kiosk-client.pid"
+	lockFile := "./kiosk-client.lock"
 
 	switch {
 	case *startCmd:
 		fmt.Println("Starting program...")
-		if err := writePID(pidFile); err != nil {
-			log.Fatalf("Could not write PID file: %v", err)
+
+		if err := createLockFile(lockFile); err != nil {
+			log.Fatalf("Could not create lock file: %v", err)
 		}
 		startProgram()
 
@@ -59,13 +60,17 @@ func main() {
 	}
 }
 
-func writePID(pidFile string) error {
-	pid := os.Getpid()
-	file, err := os.Create(pidFile)
+func createLockFile(lockFile string) error {
+	if _, err := os.Stat(lockFile); err == nil {
+		return fmt.Errorf("another instance is already running")
+	}
+
+	file, err := os.Create(lockFile)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
-	_, err = file.WriteString(fmt.Sprintf("%d", pid))
+
+	_, err = file.WriteString("kiosk-client lock file\n")
 	return err
 }
