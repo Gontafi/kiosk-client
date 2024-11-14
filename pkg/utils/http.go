@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"kiosk-client/pkg/logger"
 	"net/http"
 	"time"
@@ -35,35 +35,48 @@ func makeRequestWithRetry(method, url string, data interface{}) ([]byte, int, er
 			if err != nil {
 				return nil, 0, err
 			}
-
 			req, err = http.NewRequest(method, url, bytes.NewBuffer(jsonData))
+			if err != nil {
+				return nil, 0, err
+			}
 			req.Header.Set("Content-Type", "application/json")
 		} else {
 			req, err = http.NewRequest(method, url, nil)
-		}
-
-		if err != nil {
-			return nil, 0, err
+			if err != nil {
+				return nil, 0, err
+			}
 		}
 
 		client := &http.Client{Timeout: 10 * time.Second}
 		resp, err = client.Do(req)
 
-		defer resp.Body.Close()
-		data, _ := ioutil.ReadAll(resp.Body)
-
-		if err == nil && resp.StatusCode == http.StatusOK {
-			data, err = ioutil.ReadAll(resp.Body)
-			return data, resp.StatusCode, err
+		if err != nil {
+			if attempt < MaxRetries {
+				logger.Warn("Request failed, retrying...", "Attempt:", attempt, "Error:", err)
+				time.Sleep(time.Second * time.Duration(attempt*2)) // Exponential backoff
+				continue
+			} else {
+				logger.Error("Request failed after max retries:", err)
+				return nil, 0, errors.New("failed to make request after retries")
+			}
 		}
 
-		if attempt < MaxRetries {
-			logger.Warn("Request failed, retrying...", "Attempt: ", attempt, " Error: ", err, " Code: ", resp.StatusCode)
-			time.Sleep(time.Second * time.Duration(attempt*2)) // Exponential backoff
+		defer resp.Body.Close()
+
+		// Read and return the response if successful
+		if resp.StatusCode == http.StatusOK {
+			body, err := io.ReadAll(resp.Body)
+			return body, resp.StatusCode, err
 		} else {
-			logger.Error("Request failed after max retries:", err)
+			if attempt < MaxRetries {
+				logger.Warn("Non-200 status, retrying...", "Attempt:", attempt, "StatusCode:", resp.StatusCode)
+				time.Sleep(time.Second * time.Duration(attempt*2)) // Exponential backoff
+			} else {
+				logger.Error("Request failed after max retries with status code:", resp.StatusCode)
+				return nil, resp.StatusCode, errors.New("failed to make request after retries")
+			}
 		}
 	}
 
-	return nil, 0, errors.New("failed to make request after retries")
+	return nil, 0, errors.New("exceeded retry limit")
 }
