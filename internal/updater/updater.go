@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-func CheckForUpdates(cfg *config.Config, uuid string) {
+func CheckForUpdates(cfg *config.Config, uuid *string) {
 	for range time.Tick(cfg.PollInterval) {
 		updateAvailable := checkUpdateAvailable(cfg, uuid)
 		if updateAvailable {
@@ -16,7 +16,7 @@ func CheckForUpdates(cfg *config.Config, uuid string) {
 	}
 }
 
-func checkUpdateAvailable(cfg *config.Config, uuid string) bool {
+func checkUpdateAvailable(cfg *config.Config, uuid *string) bool {
 	// Logic to check with server if an update is available
 	return false
 }
