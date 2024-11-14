@@ -16,7 +16,7 @@ import (
 func startProgram() {
 	defer logger.Close()
 	cfg := config.Load()
-
+	log.Println(cfg.ServerURL)
 	uuid := registration.RegisterDevice(cfg)
 	
 	go monitor.StartHealthReportSender(cfg, &uuid)

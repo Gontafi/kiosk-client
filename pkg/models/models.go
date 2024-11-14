@@ -1,7 +1,12 @@
 package models
 
 type RegisterRequest struct {
-	DeviceID string `json:"device_id"`
+	DeviceID 	  string `json:"device_id"`
+	Temperature   int `json:"temperature"`
+	CPULoad       int `json:"cpu_load"`
+	MemoryUsage   int `json:"memory_usage"`
+	BrowserStatus string `json:"browser_status"`
+	Logs          *string `json:"logs"`
 }
 
 type URLResponse struct {
@@ -10,11 +15,11 @@ type URLResponse struct {
 
 type HealthRequest struct {
 	DeviceID      string `json:"device_id"`
-	Temperature   string `json:"temperature"`
-	CPULoad       string `json:"cpu_load"`
-	MemoryUsage   string `json:"memory_usage"`
+	Temperature   int `json:"temperature"`
+	CPULoad       int `json:"cpu_load"`
+	MemoryUsage   int `json:"memory_usage"`
 	BrowserStatus string `json:"browser_status"`
-	Logs          string `json:"logs"`
+	Logs          *string `json:"logs"`
 }
 
 type CheckUpdateResponse struct {

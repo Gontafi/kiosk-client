@@ -50,7 +50,6 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 }
 
 func fetchURL(cfg *config.Config, uuid *string) string {
-	return "https://example.com"
 	url := fmt.Sprintf("%s%s/%s", cfg.ServerURL, cfg.GetLinkPath, *uuid)
 	resp, _, err := utils.MakeGETRequest(url)
 

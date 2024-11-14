@@ -7,7 +7,7 @@ import (
 	"kiosk-client/config"
 	"kiosk-client/pkg/logger"
 	"kiosk-client/pkg/models"
-	_ "kiosk-client/pkg/utils"
+	"kiosk-client/pkg/utils"
 	"os"
 	"os/exec"
 	"strconv"
@@ -19,17 +19,22 @@ const logFilePath = "application.log" // Path to the log file
 
 func StartHealthReportSender(cfg *config.Config, uuid *string) {
 	for range time.Tick(cfg.HealthInterval) {
-		report := collectHealthData(uuid)
+		report := CollectHealthData(uuid)
 		sendHealthReport(cfg, report)
 	}
 }
 
-func collectHealthData(uuid *string) *models.HealthRequest {
+func CollectHealthData(uuid *string) *models.HealthRequest {
 	temperature := getCPUTemperature()
 	cpuLoad := getCPULoad()
 	memoryUsage := getMemoryUsage()
 	browserStatus := getBrowserStatus()
-	logs := getLastLogLines(logFilePath, 50) // Read the last 50 lines from the log file
+	logs := getLastLogLines(logFilePath, 10)
+
+	var logsPtr *string
+	if logs != "" {
+		logsPtr = &logs
+	}
 
 	return &models.HealthRequest{
 		DeviceID:      *uuid,
@@ -37,28 +42,26 @@ func collectHealthData(uuid *string) *models.HealthRequest {
 		CPULoad:       cpuLoad,
 		MemoryUsage:   memoryUsage,
 		BrowserStatus: browserStatus,
-		Logs:          logs,
+		Logs:          logsPtr,
 	}
 }
 
 func sendHealthReport(cfg *config.Config, report *models.HealthRequest) {
-	reportJSON, err := json.MarshalIndent(report, "","    ")
+	reportJSON, err := json.MarshalIndent(report, "", "    ")
 	if err != nil {
 		logger.Error("Failed to marshal health report:", err)
 		return
 	}
 
 	url := fmt.Sprintf("%s%s", cfg.ServerURL, cfg.HealthReportPath)
-	
 	fmt.Println(string(reportJSON), url)
-	//_, _, err = utils.MakePOSTRequest(url, reportJSON)
-	//if err != nil {
-	//	logger.Error("Failed to send health report:", err)
-	//	return
-	//}
+	_, _, err = utils.MakePUTRequest(url, reportJSON)
+	if err != nil {
+	    logger.Error("Failed to send health report:", err)
+	    return
+	}
 }
 
-// getBrowserStatus checks if Chromium is running
 func getBrowserStatus() string {
 	out, err := exec.Command("pgrep", "-f", "chromium-browser").Output()
 	if err != nil || len(out) == 0 {
@@ -68,26 +71,26 @@ func getBrowserStatus() string {
 	return "working"
 }
 
-func getCPUTemperature() string {
+func getCPUTemperature() int {
 	out, err := exec.Command("cat", "/sys/class/thermal/thermal_zone0/temp").Output()
 	if err != nil {
 		logger.Error("Failed to read CPU temperature:", err)
-		return "unknown"
+		return 0
 	}
 
 	tempMilli, err := strconv.Atoi(strings.TrimSpace(string(out)))
 	if err != nil {
 		logger.Error("Failed to parse CPU temperature:", err)
-		return "unknown"
+		return 0
 	}
-	return fmt.Sprintf("%.1f°C", float64(tempMilli)/1000.0)
+	return tempMilli / 1000
 }
 
-func getCPULoad() string {
+func getCPULoad() int {
 	out, err := exec.Command("top", "-bn1").Output()
 	if err != nil {
 		logger.Error("Failed to read CPU load:", err)
-		return "unknown"
+		return 0
 	}
 
 	lines := strings.Split(string(out), "\n")
@@ -98,41 +101,40 @@ func getCPULoad() string {
 			idle, err := strconv.ParseFloat(idleStr, 64)
 			if err != nil {
 				logger.Error("Failed to parse CPU idle percentage:", err)
-				return "unknown"
+				return 0
 			}
-			return fmt.Sprintf("%.1f%%", 100.0-idle) // CPU usage = 100 - idle
+			return int(100.0 - idle) // CPU usage as an integer
 		}
 	}
-	return "unknown"
+	return 0
 }
 
-func getMemoryUsage() string {
+func getMemoryUsage() int {
 	out, err := exec.Command("free", "-m").Output()
 	if err != nil {
 		logger.Error("Failed to read memory usage:", err)
-		return "unknown"
+		return 0
 	}
 
 	lines := strings.Split(string(out), "\n")
 	if len(lines) < 2 {
 		logger.Error("Unexpected output from free command")
-		return "unknown"
+		return 0
 	}
 
 	fields := strings.Fields(lines[1]) // Use the second line for memory usage
 	totalMem, err := strconv.Atoi(fields[1])
 	if err != nil {
 		logger.Error("Failed to parse total memory:", err)
-		return "unknown"
+		return 0
 	}
 	usedMem, err := strconv.Atoi(fields[2])
 	if err != nil {
 		logger.Error("Failed to parse used memory:", err)
-		return "unknown"
+		return 0
 	}
 
-	usage := (float64(usedMem) / float64(totalMem)) * 100.0
-	return fmt.Sprintf("%.1f%%", usage)
+	return int((float64(usedMem) / float64(totalMem)) * 100.0)
 }
 
 func getLastLogLines(filePath string, n int) string {

@@ -20,17 +20,22 @@ func MakeGETRequest(url string) ([]byte, int, error) {
 	return makeRequestWithRetry("GET", url, nil)
 }
 
+func MakePUTRequest(url string, data interface{}) ([]byte, int, error) {
+	return makeRequestWithRetry("PUT", url, data)
+}
+
 func makeRequestWithRetry(method, url string, data interface{}) ([]byte, int, error) {
 	var err error
 	var resp *http.Response
 
 	for attempt := 1; attempt <= MaxRetries; attempt++ {
 		var req *http.Request
-		if method == "POST" && data != nil {
+		if data != nil {
 			jsonData, err := json.Marshal(data)
 			if err != nil {
 				return nil, 0, err
 			}
+			logger.Warn(string(jsonData))
 			req, err = http.NewRequest(method, url, bytes.NewBuffer(jsonData))
 			req.Header.Set("Content-Type", "application/json")
 		} else {
@@ -43,9 +48,14 @@ func makeRequestWithRetry(method, url string, data interface{}) ([]byte, int, er
 
 		client := &http.Client{Timeout: 10 * time.Second}
 		resp, err = client.Do(req)
+		logger.Warn(resp.StatusCode)
+		logger.Warn(url)
+		defer resp.Body.Close()
+		data, _ := ioutil.ReadAll(resp.Body)
+		logger.Warn(string(data))
 		if err == nil && resp.StatusCode == http.StatusOK {
-			defer resp.Body.Close()
-			data, err := ioutil.ReadAll(resp.Body)
+			
+			data, err = ioutil.ReadAll(resp.Body)
 			return data, resp.StatusCode, err
 		}
 
