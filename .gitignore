@@ -1,5 +1,5 @@
 .env
-idea
+.idea
 application.log
 device_uuid.txt
 last_url.txt
