@@ -63,9 +63,9 @@ func makeRequestWithRetry(method, url string, data interface{}) ([]byte, int, er
 
 		defer resp.Body.Close()
 
-		// Read and return the response if successful
 		if resp.StatusCode == http.StatusOK {
 			body, err := io.ReadAll(resp.Body)
+			
 			return body, resp.StatusCode, err
 		} else {
 			if attempt < MaxRetries {

@@ -2,7 +2,6 @@ package monitor
 
 import (
 	"bufio"
-	"encoding/json"
 	"fmt"
 	"kiosk-client/config"
 	"kiosk-client/pkg/logger"
@@ -47,15 +46,8 @@ func CollectHealthData(uuid *string) *models.HealthRequest {
 }
 
 func sendHealthReport(cfg *config.Config, report *models.HealthRequest) {
-	reportJSON, err := json.MarshalIndent(report, "", "    ")
-	if err != nil {
-		logger.Error("Failed to marshal health report:", err)
-		return
-	}
-
 	url := fmt.Sprintf("%s%s", cfg.ServerURL, cfg.HealthReportPath)
-	fmt.Println(string(reportJSON), url)
-	_, _, err = utils.MakePUTRequest(url, reportJSON)
+	_, _, err := utils.MakePUTRequest(url, report)
 	if err != nil {
 		logger.Error("Failed to send health report:", err)
 		return
@@ -63,7 +55,7 @@ func sendHealthReport(cfg *config.Config, report *models.HealthRequest) {
 }
 
 func getBrowserStatus() string {
-	out, err := exec.Command("pgrep", "-f", "chromium-browser").Output()
+	out, err := exec.Command("pgrep", "-f", "chromium").Output()
 	if err != nil || len(out) == 0 {
 		logger.Warn("Chromium browser is not running")
 		return "not running"
@@ -87,26 +79,20 @@ func getCPUTemperature() float64 {
 }
 
 func getCPULoad() float64 {
-	out, err := exec.Command("top", "-bn1").Output()
+	out, err := exec.Command("sh", "-c", "grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage}'").Output()
 	if err != nil {
 		logger.Error("Failed to read CPU load:", err)
 		return 0.0
 	}
-
-	lines := strings.Split(string(out), "\n")
-	for _, line := range lines {
-		if strings.Contains(line, "Cpu(s):") {
-			fields := strings.Fields(line)
-			idleStr := strings.TrimSuffix(fields[7], "%id")
-			idle, err := strconv.ParseFloat(idleStr, 64)
-			if err != nil {
-				logger.Error("Failed to parse CPU idle percentage:", err)
-				return 0.0
-			}
-			return 100.0 - idle // CPU usage = 100 - idle
-		}
+	
+	usageStr := strings.TrimSpace(string(out))
+	usage, err := strconv.ParseFloat(usageStr, 64)
+	if err != nil {
+		logger.Error("Failed to parse CPU usage:", err)
+		return 0.0
 	}
-	return 0.0
+
+	return usage
 }
 
 func getMemoryUsage() float64 {

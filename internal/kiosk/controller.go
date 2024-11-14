@@ -21,7 +21,7 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 	for {
 		newURL := fetchURL(cfg, uuid)
 
-		out, err := exec.Command("pgrep", "-f", "chromium-browser").Output()
+		out, err := exec.Command("pgrep", "-f", "chromium").Output()
 		if (err != nil || len(out) == 0) || newURL != currentURL {
 			currentURL = newURL
 			saveURLToFile(currentURL)
