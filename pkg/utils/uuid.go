@@ -9,13 +9,13 @@ import (
 
 const uuidFilePath = "device_uuid.txt"
 
-func LoadOrCreateUUID() string {
+func LoadOrCreateUUID() (string, bool) {
 	if currentUUID := loadUUID(); currentUUID != "" {
-		return currentUUID
+		return currentUUID, true
 	}
 	newUUID := uuid.New().String()
 	saveUUID(newUUID)
-	return newUUID
+	return newUUID, false
 }
 
 func loadUUID() string {

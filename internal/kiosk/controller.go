@@ -39,10 +39,15 @@ func runChromium(user string, cfg *config.Config, url string) bool {
 
 func ChromiumRunner(cfg *config.Config) {
 	for {
-		currentURL := loadURLFromFile()
-
+		time.Sleep(time.Millisecond * 100)
 		out, err := exec.Command("pgrep", "-f", cfg.ChromiumCommand).Output()
-		if (err != nil || len(out) == 0) && currentURL != "" {
+		if (err != nil || len(out) == 0) {
+			
+			currentURL := loadURLFromFile()
+			
+			if currentURL == "" {
+				continue
+			}
 			user, err := getNonRootUser()
 			if err != nil {
 				fmt.Println("Error:", err)
@@ -51,7 +56,6 @@ func ChromiumRunner(cfg *config.Config) {
 
 			runChromium(user, cfg, currentURL)
 		}
-		time.Sleep(time.Second * 5)
 	}
 }
 func StartKioskController(cfg *config.Config, uuid *string) {
