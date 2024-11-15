@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"strings"
 	"time"
+	"bufio"
 )
 
 const urlFilePath = "last_url.txt"
@@ -29,15 +30,19 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 			cmd := exec.Command("pkill", "-f", "chromium")
 			_ = cmd.Run()
 
-			os.Setenv("DISPLAY", ":0")
+			user, err := getNonRootUser()
+			if err != nil {
+				fmt.Println("Error:", err)
+				return
+			}
 
-			cmd = exec.Command(cfg.ChromiumCommand, 
-			"--kiosk", "--noerrdialogs",
-			 "--disable-infobars", 
-			 "--no-first-run", 
-			 "--enable-features=OverlayScrollbar", 
-			 "--start-maximized",
-			 "--no-sandbox", currentURL)
+			cmd = exec.Command("sudo", "-u", user, "-E", "chromium",
+				"--kiosk", "--noerrdialogs",
+				"--disable-infobars",
+				"--no-first-run",
+				"--enable-features=OverlayScrollbar",
+				"--start-maximized", currentURL)
+			cmd.Env = append(os.Environ(), "DISPLAY=:0")
 
 			output, err := cmd.CombinedOutput()
 
@@ -70,6 +75,27 @@ func fetchURL(cfg *config.Config, uuid *string) string {
 	}
 
 	return urlResponse.URL
+}
+
+func getNonRootUser() (string, error) {
+    file, err := os.Open("/etc/passwd")
+    if err != nil {
+        return "", err
+    }
+    defer file.Close()
+
+    scanner := bufio.NewScanner(file)
+    for scanner.Scan() {
+        line := scanner.Text()
+        parts := strings.Split(line, ":")
+        if len(parts) > 2 {
+            // Check if UID is 1000 (default for main non-root user)
+            if parts[2] == "1000" {
+                return parts[0], nil // return the username
+            }
+        }
+    }
+    return "", fmt.Errorf("non-root user not found")
 }
 
 func saveURLToFile(url string) {
