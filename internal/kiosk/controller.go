@@ -31,12 +31,13 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 
 			os.Setenv("DISPLAY", ":0")
 
-			cmd = exec.Command("chromium", 
+			cmd = exec.Command(cfg.ChromiumCommand, 
 			"--kiosk", "--noerrdialogs",
 			 "--disable-infobars", 
 			 "--no-first-run", 
 			 "--enable-features=OverlayScrollbar", 
-			 "--start-maximized", currentURL)
+			 "--start-maximized",
+			 "--no-sandbox", currentURL)
 
 			output, err := cmd.CombinedOutput()
 

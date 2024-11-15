@@ -13,6 +13,7 @@ type Config struct {
 	RegistrationPath string
 	GetLinkPath      string
 	HealthReportPath string
+	ChromiumCommand  string
 	PollInterval     time.Duration
 	HealthInterval   time.Duration
 }
@@ -36,12 +37,12 @@ func Load() *Config {
 		return defaultValue
 	}
 
-	//parseMinutes := func(envValue string, defaultValue time.Duration) time.Duration {
-	//	if minutes, err := strconv.Atoi(envValue); err == nil {
-	//		return time.Duration(minutes) * time.Minute
-	//	}
-	//	return defaultValue
-	//}
+	parseMinutes := func(envValue string, defaultValue time.Duration) time.Duration {
+		if minutes, err := strconv.Atoi(envValue); err == nil {
+			return time.Duration(minutes) * time.Minute
+		}
+		return defaultValue
+	}
 
 	return &Config{
 		ServerURL:        getEnv("SERVER_URL", "https://example.com/api"),
@@ -49,6 +50,7 @@ func Load() *Config {
 		GetLinkPath:      getEnv("GET_LINK_PATH", "/api/get_link"),
 		HealthReportPath: getEnv("HEALTH_REPORT_PATH", "/api/status_update"),
 		PollInterval:     parseHours(getEnv("POLL_INTERVAL_HOUR", ""), 24*time.Hour),
-		HealthInterval:   5*time.Second,
+		HealthInterval:   parseMinutes(getEnv("HEALTH_INTERVAL_MINUTE", ""), 5*time.Second),
+		ChromiumCommand: getEnv("CHROMIUM_COMMAND", "chromium"),
 	}
 }
