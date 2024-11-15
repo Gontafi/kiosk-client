@@ -11,7 +11,7 @@ import (
 func RegisterDevice(cfg *config.Config) string {
 	uuid := utils.LoadOrCreateUUID()
 
-	status := monitor.CollectHealthData(&uuid)
+	status := monitor.CollectHealthData(cfg, &uuid)
 
 	_, _, err := utils.MakePOSTRequest(
 		cfg.ServerURL+cfg.RegistrationPath,

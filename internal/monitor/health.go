@@ -18,16 +18,16 @@ const logFilePath = "application.log"
 
 func StartHealthReportSender(cfg *config.Config, uuid *string) {
 	for range time.Tick(cfg.HealthInterval) {
-		report := CollectHealthData(uuid)
+		report := CollectHealthData(cfg, uuid)
 		sendHealthReport(cfg, report)
 	}
 }
 
-func CollectHealthData(uuid *string) *models.HealthRequest {
+func CollectHealthData(cfg *config.Config, uuid *string) *models.HealthRequest {
 	temperature := getCPUTemperature()
 	cpuLoad := getCPULoad()
 	memoryUsage := getMemoryUsage()
-	browserStatus := getBrowserStatus()
+	browserStatus := getBrowserStatus(cfg)
 	logs := getLastLogLines(logFilePath, 10)
 
 	var logsPtr *string
@@ -54,8 +54,8 @@ func sendHealthReport(cfg *config.Config, report *models.HealthRequest) {
 	}
 }
 
-func getBrowserStatus() string {
-	out, err := exec.Command("pgrep", "-f", "chromium").Output()
+func getBrowserStatus(cfg *config.Config) string {
+	out, err := exec.Command("pgrep", "-f", cfg.ChromiumCommand).Output()
 	if err != nil || len(out) == 0 {
 		logger.Warn("Chromium browser is not running")
 		return "not running"
@@ -84,7 +84,7 @@ func getCPULoad() float64 {
 		logger.Error("Failed to read CPU load:", err)
 		return 0.0
 	}
-	
+
 	usageStr := strings.TrimSpace(string(out))
 	usage, err := strconv.ParseFloat(usageStr, 64)
 	if err != nil {
