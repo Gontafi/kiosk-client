@@ -30,13 +30,6 @@ func Load() *Config {
 		return fallback
 	}
 
-	parseHours := func(envValue string, defaultValue time.Duration) time.Duration {
-		if hours, err := strconv.Atoi(envValue); err == nil {
-			return time.Duration(hours) * time.Hour
-		}
-		return defaultValue
-	}
-
 	parseMinutes := func(envValue string, defaultValue time.Duration) time.Duration {
 		if minutes, err := strconv.Atoi(envValue); err == nil {
 			return time.Duration(minutes) * time.Minute
@@ -49,8 +42,8 @@ func Load() *Config {
 		RegistrationPath: getEnv("REGISTRATION_PATH", "/api/register"),
 		GetLinkPath:      getEnv("GET_LINK_PATH", "/api/get_link"),
 		HealthReportPath: getEnv("HEALTH_REPORT_PATH", "/api/status_update"),
-		PollInterval:     parseHours(getEnv("POLL_INTERVAL_HOUR", ""), 24*time.Hour),
-		HealthInterval:   parseMinutes(getEnv("HEALTH_INTERVAL_MINUTE", ""), 5*time.Second),
-		ChromiumCommand: getEnv("CHROMIUM_COMMAND", "chromium"),
+		PollInterval:     parseMinutes(getEnv("POLL_INTERVAL_MINUTE", ""), 60*time.Minute),
+		HealthInterval:   parseMinutes(getEnv("HEALTH_INTERVAL_MINUTE", ""), 1*time.Minute),
+		ChromiumCommand:  getEnv("CHROMIUM_COMMAND", "chromium"),
 	}
 }

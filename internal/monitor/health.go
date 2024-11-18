@@ -85,7 +85,7 @@ func getCPULoad() float64 {
 		return 0.0
 	}
 
-	usageStr := strings.TrimSpace(string(out))
+	usageStr := strings.ReplaceAll(strings.TrimSpace(string(out)), ",", ".")
 	usage, err := strconv.ParseFloat(usageStr, 64)
 	if err != nil {
 		logger.Error("Failed to parse CPU usage:", err)
