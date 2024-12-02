@@ -10,11 +10,15 @@ import (
 	"kiosk-client/pkg/utils"
 	"os"
 	"os/exec"
+	"strconv"
 	"strings"
+	"sync"
 	"time"
 )
 
 const urlFilePath = "last_url.txt"
+
+var urlFileMutex sync.Mutex
 
 func runChromium(user string, cfg *config.Config, url string) bool {
 	cmd := exec.Command("sudo", "-u", user, "-E", cfg.ChromiumCommand,
@@ -27,7 +31,6 @@ func runChromium(user string, cfg *config.Config, url string) bool {
 
 	_, err := cmd.CombinedOutput()
 
-	//logger.Info(fmt.Sprintf("Chromium output: %s", string(output)))
 	if err != nil {
 		logger.Error("Failed to start Chromium:", err)
 		return false
@@ -37,18 +40,18 @@ func runChromium(user string, cfg *config.Config, url string) bool {
 	return true
 }
 
-func ChromiumRunner(cfg *config.Config) {
+func ChromiumRunner(cfg *config.Config, uuid *string) {
 	for {
-		time.Sleep(time.Millisecond * 100)
+		time.Sleep(time.Second * 1)
 		out, err := exec.Command("pgrep", "-f", cfg.ChromiumCommand).Output()
 		if err != nil || len(out) == 0 {
 
-			currentURL := loadURLFromFile()
+			currentURL := fetchURL(cfg, uuid)
 
 			if currentURL == "" {
 				continue
 			}
-			user, err := getNonRootUser()
+			user, err := getNonRootUser(cfg)
 			if err != nil {
 				fmt.Println("Error:", err)
 				return
@@ -73,7 +76,7 @@ func StartKioskController(cfg *config.Config, uuid *string) {
 			cmd := exec.Command("pkill", "-f", cfg.ChromiumCommand)
 			_ = cmd.Run()
 
-			user, err := getNonRootUser()
+			user, err := getNonRootUser(cfg)
 			if err != nil {
 				fmt.Println("Error:", err)
 				return
@@ -104,10 +107,14 @@ func fetchURL(cfg *config.Config, uuid *string) string {
 	return urlResponse.URL
 }
 
-func getNonRootUser() (string, error) {
+func getNonRootUser(cfg *config.Config) (string, error) {
+	if cfg.NonRootUser != "" {
+		return cfg.NonRootUser, nil
+	}
+
 	file, err := os.Open("/etc/passwd")
 	if err != nil {
-		return "", err
+		return "", fmt.Errorf("unable to open /etc/passwd: %w", err)
 	}
 	defer file.Close()
 
@@ -116,9 +123,12 @@ func getNonRootUser() (string, error) {
 		line := scanner.Text()
 		parts := strings.Split(line, ":")
 		if len(parts) > 2 {
-			// Check if UID is 1000 (default for main non-root user)
-			if parts[2] == "1000" {
-				return parts[0], nil // return the username
+			uid, err := strconv.Atoi(parts[2])
+			if err != nil {
+				continue
+			}
+			if uid >= 1000 && uid < 65534 { // Range for non-system users
+				return parts[0], nil
 			}
 		}
 	}
@@ -126,6 +136,9 @@ func getNonRootUser() (string, error) {
 }
 
 func saveURLToFile(url string) {
+	urlFileMutex.Lock()
+	defer urlFileMutex.Unlock()
+
 	err := os.WriteFile(urlFilePath, []byte(url), 0644)
 	if err != nil {
 		logger.Error("Failed to save URL to file:", err)
@@ -133,14 +146,20 @@ func saveURLToFile(url string) {
 }
 
 func loadURLFromFile() string {
+	urlFileMutex.Lock()
+	defer urlFileMutex.Unlock()
+
 	data, err := os.ReadFile(urlFilePath)
 	if err != nil {
-		logger.Warn("No previous URL found, defaulting to initial URL")
+		logger.Warn("No previous URL found or failed to read file. Defaulting to initial URL")
 		return "https://google.com"
 	}
 
-	cleanedData := strings.ReplaceAll(string(data), "\n", "")
-	cleanedData = strings.ReplaceAll(cleanedData, "\r", "")
+	cleanedData := strings.TrimSpace(string(data))
+	if cleanedData == "" {
+		logger.Warn("URL file is empty. Defaulting to initial URL")
+		return "https://google.com"
+	}
 
-	return strings.TrimSpace(cleanedData)
+	return cleanedData
 }

@@ -16,6 +16,7 @@ type Config struct {
 	ChromiumCommand  string
 	PollInterval     time.Duration
 	HealthInterval   time.Duration
+	NonRootUser      string
 }
 
 func Load() *Config {
