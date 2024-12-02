@@ -22,11 +22,11 @@ func connected() bool {
 	return true
 }
 
-func KillChromium(cfg *config.Config) {
-	logger.Info("Restarting Chromium after reconnection...")
-	_, err := exec.Command("pkill", "-f", cfg.ChromiumCommand).Output()
+func ReloadChromiumPage(cfg *config.Config) {
+	logger.Info("Reloading Chromium page...")
+	_, err := exec.Command("xdotool","search", "--onlyvisible", "--class", "chromium", "windowfocus", "key", "F5").Output()
 	if err != nil {
-		logger.Error("Failed to kill Chromium:", err)
+		logger.Error("Failed to reload Chromium page:", err)
 	}
 }
 
@@ -34,10 +34,10 @@ func MonitorConnection(cfg *config.Config) {
 	for {
 		time.Sleep(5 * time.Second)
 		currentState := connected()
-		//logger.Info("Connection status:", lastConnectionState, currentState)
+
 		if currentState && !lastConnectionState {
 			logger.Info("Internet connection restored")
-			KillChromium(cfg)
+			ReloadChromiumPage(cfg)
 		} else if !currentState && lastConnectionState {
 			logger.Warn("Internet connection lost")
 		}
