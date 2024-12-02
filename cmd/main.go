@@ -15,7 +15,7 @@ func startProgram() {
 
 	go monitor.StartHealthReportSender(cfg, &uuid)
 	go kiosk.StartKioskController(cfg, &uuid)
-	go kiosk.ChromiumRunner(cfg)
+	go kiosk.ChromiumRunner(cfg, &uuid)
 
 	go kiosk.MonitorConnection(cfg)
 
