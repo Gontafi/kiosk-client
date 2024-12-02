@@ -11,8 +11,15 @@ import (
 var lastConnectionState = true
 
 func connected() bool {
-	_, err := http.Get("http://clients3.google.com/generate_204")
-	return err == nil
+	client := &http.Client{
+		Timeout: 5 * time.Second,
+	}
+	resp, err := client.Get("http://clients3.google.com/generate_204")
+	if err != nil {
+		return false
+	}
+	resp.Body.Close()
+	return true
 }
 
 func KillChromium(cfg *config.Config) {
@@ -27,7 +34,7 @@ func MonitorConnection(cfg *config.Config) {
 	for {
 		time.Sleep(5 * time.Second)
 		currentState := connected()
-
+		//logger.Info("Connection status:", lastConnectionState, currentState)
 		if currentState && !lastConnectionState {
 			logger.Info("Internet connection restored")
 			KillChromium(cfg)
