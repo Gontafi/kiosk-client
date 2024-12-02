@@ -58,6 +58,7 @@ func ChromiumRunner(cfg *config.Config) {
 		}
 	}
 }
+
 func StartKioskController(cfg *config.Config, uuid *string) {
 	currentURL := loadURLFromFile()
 

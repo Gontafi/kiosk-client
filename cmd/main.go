@@ -17,8 +17,10 @@ func startProgram() {
 	go kiosk.StartKioskController(cfg, &uuid)
 	go kiosk.ChromiumRunner(cfg)
 
+	go kiosk.MonitorConnection(cfg)
+
 	logger.Info("Application started")
-	select {} // Block forever, the program continues running
+	select {} // Block forever
 }
 
 func main() {
