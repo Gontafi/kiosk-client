@@ -29,9 +29,9 @@ func runChromium(user string, cfg *config.Config, url string) bool {
 		"--start-maximized", url)
 	cmd.Env = append(os.Environ(), "DISPLAY=:0")
 
-	out, err := cmd.CombinedOutput()
+	_, err := cmd.CombinedOutput()
 
-	logger.Info(fmt.Sprintf("Chromium output: %s", out))
+	//logger.Info(fmt.Sprintf("Chromium output: %s", out))
 	if err != nil {
 		logger.Error("Failed to start Chromium:", err)
 		return false
