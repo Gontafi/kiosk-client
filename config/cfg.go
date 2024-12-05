@@ -17,6 +17,8 @@ type Config struct {
 	PollInterval     time.Duration
 	HealthInterval   time.Duration
 	NonRootUser      string
+	PingInterval     time.Duration
+	HealthCheckURL   string
 }
 
 func Load() *Config {
@@ -34,9 +36,19 @@ func Load() *Config {
 	parseMinutes := func(envValue string, defaultValue time.Duration) time.Duration {
 		if minutes, err := strconv.Atoi(envValue); err == nil {
 			if minutes == 0 {
-				return time.Duration(5) * time.Second
+				return time.Duration(10) * time.Second
 			}
 			return time.Duration(minutes) * time.Minute
+		}
+		return defaultValue
+	}
+	
+	parseSeconds := func(envValue string, defaultValue time.Duration) time.Duration {
+		if seconds, err := strconv.Atoi(envValue); err == nil {
+			if seconds == 0 {
+				return time.Duration(10) * time.Second
+			}
+			return time.Duration(seconds) * time.Second
 		}
 		return defaultValue
 	}
@@ -48,6 +60,8 @@ func Load() *Config {
 		HealthReportPath: getEnv("HEALTH_REPORT_PATH", "/api/status_update"),
 		PollInterval:     parseMinutes(getEnv("POLL_INTERVAL_MINUTE", ""), 60*time.Minute),
 		HealthInterval:   parseMinutes(getEnv("HEALTH_INTERVAL_MINUTE", ""), 1*time.Minute),
+		PingInterval: 	  parseSeconds(getEnv("PING_INTERVAL", ""), 10*time.Second),
 		ChromiumCommand:  getEnv("CHROMIUM_COMMAND", "chromium"),
+		HealthCheckURL:   getEnv("HEALTH_CHECK_URL", ""),
 	}
 }

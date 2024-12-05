@@ -21,7 +21,7 @@ func connected(cfg *config.Config) (bool, error) {
 
 	resp.Body.Close()
 
-	respServer, err := client.Get(cfg.ServerURL)
+	respServer, err := client.Get(cfg.HealthCheckURL)
 	if err != nil {
 		return false, err
 	}
@@ -29,7 +29,8 @@ func connected(cfg *config.Config) (bool, error) {
 	respServer.Body.Close()
 
 	if respServer.StatusCode < 200 && respServer.StatusCode >= 300 {
-		logger.Warn("Ping failed: %s (Status: %s)\n", cfg.ServerURL, resp.Status)
+		logger.Warn("Ping failed Status", resp.Status)
+		return false, nil
 	}
 
 	return true, nil
@@ -37,7 +38,9 @@ func connected(cfg *config.Config) (bool, error) {
 
 func ReloadChromiumPage(cfg *config.Config) {
 	logger.Info("Reloading Chromium page...")
-	_, err := exec.Command(
+	out, err := exec.Command(
+		"env",
+		"DISPLAY=:0",
 		"xdotool",
 		"search",
 		"--onlyvisible",
@@ -48,17 +51,14 @@ func ReloadChromiumPage(cfg *config.Config) {
 		"F5",
 	).Output()
 	if err != nil {
-		logger.Error("Failed to reload Chromium page:", err)
+		logger.Error("Failed to reload Chromium page:", err, out)
 	}
 }
 
 func MonitorConnection(cfg *config.Config) {
 	for {
-		time.Sleep(5 * time.Second)
-		currentState, err := connected(cfg)
-		if err != nil {
-			logger.Warn("Error accured while trying to check connection:", err)
-		}
+		time.Sleep(cfg.PingInterval)
+		currentState, _ := connected(cfg)
 
 		if currentState && !lastConnectionState {
 			logger.Info("Internet connection restored")
