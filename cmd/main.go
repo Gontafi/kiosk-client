@@ -19,7 +19,7 @@ func startProgram() {
 
 	go kiosk.MonitorConnection(cfg)
 
-	logger.Info("Application started")
+	logger.Info("Application started!")
 	select {} // Block forever
 }
 
