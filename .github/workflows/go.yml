@@ -33,6 +33,8 @@ jobs:
         
         git rm --cached kiosk-client || echo "No previous binary to remove"
 
+        git merge origin/master
+        
         env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
         
         git add kiosk-client
