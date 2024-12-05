@@ -43,6 +43,6 @@ jobs:
         git checkout -b update-version
         git add kiosk-client
         git commit -m "Build kiosk-client for version ${{ env.new_version }}"
-        git push origin update-version
+        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} update-version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
