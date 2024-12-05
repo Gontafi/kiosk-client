@@ -4,8 +4,10 @@ on:
   push:
     branches: [ "main" ]
 
-jobs:
+permissions:
+  contents: write
 
+jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
@@ -14,16 +16,15 @@ jobs:
     - name: Set up Go
       uses: actions/setup-go@v5
       with:
-        go-version: 1.23.2
-      
+        go-version: '1.23.2'
+  
     - name: Install dependencies
       run: go mod download && go mod verify
-        
+    
     - name: Build
       run: |
         env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
-        ls -l
-    
+
     - name: Commit and push binary
       run: |
         git config user.name "GitHub Actions"
@@ -31,7 +32,5 @@ jobs:
         git checkout -b releases
         ls -l
         git add kiosk-client
-        git commit -m "Build kiosk-client for version ${{ env.new_version }}"
-        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} releases
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        git commit -m "Build kiosk-client"
+        git push https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
