@@ -21,6 +21,9 @@ jobs:
       with:
         go-version: 1.23.2
         
+    - name: Check Directory
+      run: ls
+      
     - name: Install dependencies
       run: go get .
         
