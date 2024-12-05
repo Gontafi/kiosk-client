@@ -27,11 +27,11 @@ func runChromium(user string, cfg *config.Config, url string) bool {
 		"--no-first-run",
 		"--enable-features=OverlayScrollbar",
 		"--start-maximized", url)
+		
 	cmd.Env = append(os.Environ(), "DISPLAY=:0")
+	
+	err := cmd.Start()
 
-	_, err := cmd.CombinedOutput()
-
-	//logger.Info(fmt.Sprintf("Chromium output: %s", out))
 	if err != nil {
 		logger.Error("Failed to start Chromium:", err)
 		return false
@@ -64,30 +64,40 @@ func ChromiumRunner(cfg *config.Config, uuid *string) {
 }
 
 func StartKioskController(cfg *config.Config, uuid *string) {
-	currentURL := loadURLFromFile()
+    currentURL := loadURLFromFile()
+    logger.Info(fmt.Sprintf("Starting Kiosk Controller with initial URL: %s", currentURL))
 
-	for {
-		newURL := fetchURL(cfg, uuid)
+    for {
+        newURL := fetchURL(cfg, uuid)
 
-		out, err := exec.Command("pgrep", "-f", cfg.ChromiumCommand).Output()
-		if (err != nil || len(out) == 0) || newURL != currentURL {
-			currentURL = newURL
-			saveURLToFile(currentURL)
+        out, err := exec.Command("pgrep", "-f", cfg.ChromiumCommand).Output()
 
-			cmd := exec.Command("pkill", "-f", cfg.ChromiumCommand)
-			_ = cmd.Run()
+        if (err != nil || len(out) == 0) || newURL != currentURL {
+            logger.Info(fmt.Sprintf("Updating URL to: %s", newURL))
+            currentURL = newURL
+            saveURLToFile(currentURL)
 
-			user, err := getNonRootUser(cfg)
-			if err != nil {
-				fmt.Println("Error:", err)
-				return
-			}
+            cmd := exec.Command("pkill", "-f", cfg.ChromiumCommand)
+            if err := cmd.Run(); err != nil {
+                logger.Warn("Failed to kill Chromium process:", err)
+            }
 
-			runChromium(user, cfg, currentURL)
-		}
+            user, err := getNonRootUser(cfg)
+            if err != nil {
+                logger.Error("Failed to get non-root user:", err)
+                return
+            }
 
-		time.Sleep(cfg.PollInterval)
-	}
+            if !runChromium(user, cfg, currentURL) {
+                logger.Error("Failed to start Chromium.")
+            }
+
+        } else {
+            logger.Info("No changes in URL or Chromium is already running.")
+        }
+
+        time.Sleep(cfg.PollInterval)
+    }
 }
 
 func fetchURL(cfg *config.Config, uuid *string) string {

@@ -33,6 +33,9 @@ func Load() *Config {
 
 	parseMinutes := func(envValue string, defaultValue time.Duration) time.Duration {
 		if minutes, err := strconv.Atoi(envValue); err == nil {
+			if minutes == 0 {
+				return time.Duration(5) * time.Second
+			}
 			return time.Duration(minutes) * time.Minute
 		}
 		return defaultValue
