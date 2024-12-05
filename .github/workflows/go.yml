@@ -30,6 +30,10 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git checkout -b releases
+        
+        # Remove everything except .git and binary
+        rm -rf !(kiosk-client|.git)
+        
         ls -l
         git add kiosk-client
         git commit -m "Build kiosk-client"
