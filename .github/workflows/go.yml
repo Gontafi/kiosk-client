@@ -36,7 +36,7 @@ jobs:
         
         git checkout -B releases
         
-        git clean -X -n --exclude="!kiosk-client"
+        find . -type f ! -name 'kiosk-client' -delete
         
         git add kiosk-client
         
