@@ -17,29 +17,30 @@ jobs:
       uses: actions/setup-go@v5
       with:
         go-version: '1.23.2'
-  
+        
     - name: Install dependencies
-      run: go mod download && go mod verify
-
-    - name: Build
-      run: env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
-      
-    - name: Build and Commit and push binary
+      run: |
+        go mod download
+        go mod verify
+    
+    - name: Build binary
+      run: |
+        env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
+    
+    - name: Commit and push binary
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
-
-        git add kiosk-client
         
+        git add kiosk-client
         git stash
         
         git fetch origin releases
-        git checkout releases
+        git checkout -b releases origin/releases || git checkout releases
         
         git stash pop
-
-        git add kiosk-client
         
-        git commit -m "Update kiosk-client binary"
+        git add kiosk-client
+        git commit -m "Update kiosk-client binary" || echo "No changes to commit"
         
         git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
