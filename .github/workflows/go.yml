@@ -36,10 +36,8 @@ jobs:
         
         git checkout -B releases
         
-        git rm -rf .
-        git clean -fd
+        git clean -X -n --exclude="!kiosk-client"
         
-        mv ../kiosk-client .
         git add kiosk-client
         
         git commit -m "Build kiosk-client"
