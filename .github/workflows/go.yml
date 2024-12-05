@@ -30,15 +30,12 @@ jobs:
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         
-        git checkout main
-        
         git fetch origin releases
-        
         git checkout -B releases
+        git rm -r --cached *
+        git clean -d -x -f
         
-        find . -type f ! -name 'kiosk-client' -not -path './.git/*' -delete
-        
-        git add kiosk-client
-        
-        git commit -m "Build kiosk-client"
+        git status
+        git restore  --staged kiosk-client
+        git restore kiosk-client
         git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
