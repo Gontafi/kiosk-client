@@ -36,13 +36,15 @@ jobs:
         echo "new_version=$new_version" >> $GITHUB_ENV
       shell: bash
 
-    - name: Commit and Push Changes
-      run: |
+    - uses: actions/checkout@v2
+      with:
+        token: ${{secrets.PAT}}
+    - run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
-        git checkout -b update-version
+        git checkout main
         git add kiosk-client
         git commit -m "Build kiosk-client for version ${{ env.new_version }}"
-        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} update-version
+        git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }} origin/main
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
