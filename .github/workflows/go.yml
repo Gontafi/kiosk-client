@@ -37,6 +37,8 @@ jobs:
         git checkout releases
         
         git stash pop
+
+        git add kiosk-client
         
         git commit -m "Update kiosk-client binary"
         
