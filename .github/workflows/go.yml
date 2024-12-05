@@ -30,7 +30,12 @@ jobs:
         
         git fetch origin releases
         git checkout -b releases origin/releases || git checkout releases
-           
+        
+        git rm --cached kiosk-client || echo "No previous binary to remove"
+
         env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
+        
         git add kiosk-client
+        git commit -m "Update kiosk-client binary" || echo "No changes to commit"
+        
         git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
