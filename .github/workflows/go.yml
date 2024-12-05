@@ -6,7 +6,7 @@ on:
 
 jobs:
 
-  build-and-release:
+  build-and-push:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
@@ -34,24 +34,15 @@ jobs:
         patch=$((patch + 1))
         new_version="v$major.$minor.$patch"
         echo "new_version=$new_version" >> $GITHUB_ENV
-        echo "::set-output name=version::$new_version"
       shell: bash
 
-    - name: Create GitHub Release
-      uses: actions/create-release@v1
-      with:
-        tag_name: ${{ env.new_version }}
-        release_name: ${{ env.new_version }}
-        body: "Automatic release for version ${{ env.new_version }}"
-        draft: false
-        prerelease: false
+    - name: Commit and Push Changes
+      run: |
+        git config user.name "GitHub Actions"
+        git config user.email "actions@github.com"
+        git checkout -b update-version
+        git add kiosk-client
+        git commit -m "Build kiosk-client for version ${{ env.new_version }}"
+        git push origin update-version
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Upload Release Asset
-      uses: actions/upload-release-asset@v1
-      with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./kiosk-client
-        asset_name: kiosk-client
-        asset_content_type: application/octet-stream
