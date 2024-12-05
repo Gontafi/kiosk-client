@@ -29,12 +29,18 @@ jobs:
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
+        
+        git checkout main
+        
         git fetch origin releases
-        git checkout releases
         
-        git clean -X -n --exclude="!kiosk-client"
+        git checkout -B releases
         
-        ls -l
+        git rm -rf .
+        git clean -fd
+        
+        mv ../kiosk-client .
         git add kiosk-client
+        
         git commit -m "Build kiosk-client"
         git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
