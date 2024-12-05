@@ -36,7 +36,7 @@ jobs:
         
         git checkout -B releases
         
-        find . -path './.git' -prune -o ! -name 'important-file.txt' -exec rm -rf {} +
+        find . -path './.git' -prune -o -type f ! -name 'important-file.txt' -delete
         
         git add kiosk-client
         
