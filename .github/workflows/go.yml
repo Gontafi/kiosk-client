@@ -1,4 +1,4 @@
-name: Go
+name: Build and Release Binary
 
 on:
   push:
@@ -12,6 +12,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 
 
     - name: Set up Go
       uses: actions/setup-go@v5
@@ -23,21 +25,24 @@ jobs:
         go mod download
         go mod verify
     
-    - name: Build and push binary
+    - name: Build Binary
+      run: |
+        GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
+
+    - name: Push Binary to Releases Branch
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
-        
-        git fetch origin releases
-        git checkout -b releases origin/releases || git checkout releases
-        
-        git rm --cached kiosk-client || echo "No previous binary to remove"
 
-        git merge origin/master
-        
-        env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
-        
+        git clone https://${{ secrets.PAT }}@@github.com/${{ github.repository }} repo
+        cd repo
+
+        git checkout releases || git checkout -b releases
+
+        git rm -f kiosk-client || true
+
+        cp ../kiosk-client .
         git add kiosk-client
-        git commit -m "Update kiosk-client binary" || echo "No changes to commit"
-        
-        git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
+
+        git commit -m "Update kiosk-client binary for $(date +%Y-%m-%d)" || true
+        git push origin releases
