@@ -20,26 +20,12 @@ jobs:
       run: go mod download && go mod verify
         
     - name: Build
-      run: env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
-
-    - name: Get Latest Tag
-      id: get-latest-tag
-      run: echo "tag=$(git describe --tags --abbrev=0 || echo v0.0.0)" >> $GITHUB_ENV
-
-    - name: Bump Version
-      id: bump-version
       run: |
-        current_version=${{ env.tag }}
-        IFS='.' read -r major minor patch <<<"${current_version#v}"
-        patch=$((patch + 1))
-        new_version="v$major.$minor.$patch"
-        echo "new_version=$new_version" >> $GITHUB_ENV
-      shell: bash
-
-    - uses: actions/checkout@v2
-      with:
-        token: ${{secrets.PAT}}
-    - run: |
+        env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
+        ls -l
+    
+    - name: Commit and push binary
+      run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         git checkout -b releases
