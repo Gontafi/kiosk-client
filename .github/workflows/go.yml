@@ -30,9 +30,11 @@ jobs:
         git checkout releases
         
         env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
+
+        git status
         
         git add kiosk-client
         
-        git diff --staged --quiet || git commit -m "Update kiosk-client binary"
+        git commit -m "Update kiosk-client binary"
         
         git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
