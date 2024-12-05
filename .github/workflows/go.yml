@@ -21,19 +21,22 @@ jobs:
     - name: Install dependencies
       run: go mod download && go mod verify
 
+    - name: Build
+      run: env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
+      
     - name: Build and Commit and push binary
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
+
+        git add kiosk-client
+        
+        git stash
         
         git fetch origin releases
         git checkout releases
         
-        env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
-
-        git status
-        
-        git add kiosk-client
+        git stash pop
         
         git commit -m "Update kiosk-client binary"
         
