@@ -23,24 +23,17 @@ jobs:
         go mod download
         go mod verify
     
-    - name: Build binary
-      run: |
-        env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
-    
     - name: Commit and push binary
       run: |
         git config user.name "GitHub Actions"
         git config user.email "actions@github.com"
         
-        git add kiosk-client
-        git stash || echo "No changes to stash"
-        
         git fetch origin releases
         git checkout -b releases origin/releases || git checkout releases
         
-        git rm --cached kiosk-client || echo "No previous binary to remove"
+        git rm kiosk-client
         
-        git stash pop || echo "No stashed changes"
+        env GOOS=linux GOARCH=arm64 go build -v -ldflags "-s -w" -o kiosk-client cmd/main.go
         
         git add kiosk-client
         
