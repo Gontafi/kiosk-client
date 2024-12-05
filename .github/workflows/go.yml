@@ -33,14 +33,17 @@ jobs:
         git config user.email "actions@github.com"
         
         git add kiosk-client
-        git stash
+        git stash || echo "No changes to stash"
         
         git fetch origin releases
         git checkout -b releases origin/releases || git checkout releases
         
-        git stash pop
+        git rm --cached kiosk-client || echo "No previous binary to remove"
+        
+        git stash pop || echo "No stashed changes"
         
         git add kiosk-client
+        
         git commit -m "Update kiosk-client binary" || echo "No changes to commit"
         
         git push -f https://${{ secrets.PAT }}@github.com/${{ github.repository }} releases
