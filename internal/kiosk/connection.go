@@ -28,7 +28,7 @@ func connected(cfg *config.Config) (bool, error) {
 
 	respServer.Body.Close()
 
-	if respServer.StatusCode < 200 && respServer.StatusCode >= 300 {
+	if respServer.StatusCode < 200 || respServer.StatusCode >= 300 {
 		logger.Warn("Ping failed Status", resp.Status)
 		return false, nil
 	}
