@@ -1,1 +1,10 @@
-Разработать масштабируемое программное обеспечение для Raspberry Pi, которое будет автоматически запускать браузер Chromium в режиме киоска для отображения определенного URL, которое будет отображать либо видео-плеер и (или) html. Устройство должно регистрироваться на сервере, отправляя уникальный идентификатор (UUID), и периодически проверять наличие обновлений ссылки для отображения. Кроме того, устройство должно отправлять на сервер данные о своей работоспособности, включая температуру процессора, нагрузку процессора, использование памяти и логи работы. Сервер должен предоставлять API для регистрации устройств, обновления ссылок, получения данных от устройств и удаленного обновления программного обеспечения на устройствах. Требуется разработать простой веб-интерфейс для просмотра логов и технического состояния устройств.
+# Raspberry Pi Kiosk Script
+
+## Overview
+This project provides scalable software for Raspberry Pi devices to display specific URLs in Chromium's kiosk mode. It supports HTML pages, video players, and more. Each device registers with the server, sends its unique identifier (UUID), checks for updated URLs periodically, and transmits performance metrics, including CPU temperature, load, memory usage, and logs.
+
+## Features
+- **Automatic Kiosk Mode**: Launch Chromium in kiosk mode with the specified URL.
+- **Device Registration**: Register devices with a unique UUID.
+- **Health Monitoring**: Send performance data (CPU temperature, load, memory usage, and logs) to the server.
+- **URL Updates**: Periodically fetch the latest URL for display.
